@@ -1,0 +1,22 @@
+{
+  "name": "cli-twitter",
+  "version": "1.0.0",
+  "description": "Twitter for CLI",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dandraag/cli-twitter.git"
+  },
+  "author": "Kushagra Agarwal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dandraag/cli-twitter/issues"
+  },
+  "homepage": "https://github.com/dandraag/cli-twitter#readme",
+  "dependencies": {
+    "oauth": "^0.9.15"
+  }
+}

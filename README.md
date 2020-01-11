@@ -1,2 +1,2 @@
 # cli-twitter
-See twitter on tour terminal
+See twitter on your terminal

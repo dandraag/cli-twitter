@@ -4,7 +4,8 @@
   "description": "Twitter for CLI",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "./index.js"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,10 @@
   },
   "homepage": "https://github.com/dandraag/cli-twitter#readme",
   "dependencies": {
-    "twitter-pin-auth": "^0.2.0"
+    "clear": "^0.1.0",
+    "configstore": "^5.0.0",
+    "image-to-ascii": "^3.0.12",
+    "oauth": "^0.9.15",
+    "twit": "^2.2.11"
   }
 }

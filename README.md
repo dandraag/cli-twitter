@@ -16,6 +16,7 @@ See twitter on your terminal
 npm install cli-twitter
 ```
 (not implemented yet, please use npm start inside containing folder)
+
 2. You are shown the latest three tweets from your timeline.
 3. To view the next tweet, enter 'S' and press enter.
 4. To view the previous tweet, enter 'W' and press enter.

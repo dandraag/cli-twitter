@@ -10,6 +10,7 @@ const keypress = require('keypress')
 const clear = require('clear');
 const fs = require('fs');
 
+var max = 0;
 
 var tokenDone = conf.get('done');
 if(!tokenDone){
@@ -24,8 +25,9 @@ else{
         access_token: token.at,
         access_token_secret: token.ats,
     });
-    var c=0,min = 0,max = 50;
-    getTweets();
+    var c=0,min = 0,usrname;
+    var ar = ['user','home','mentions'],i=1;
+    getTweets(ar[i]);
     
     keypress(process.stdin);
 
@@ -35,7 +37,7 @@ else{
             process.stdin.pause();
         }
         //console.log(key);
-        if(key&&key.name == 'down'&&c+3<=max){
+        if(key&&key.name == 's'&&c+3<=max){
             console.log('yo')
             clear();
             c++;
@@ -51,17 +53,21 @@ else{
                 })();
             })
         }
-        if(key&&key.name == 'down'&&c+3>max){
+        if(key&&key.name == 's'&&c+3>max){
             clear();
             c++;
             fs.readFile('tweets.txt',function(err, data){
                 var t = JSON.parse(data);
-                getTweets(t[min+24].id);
-                min += 25;
-                max += 25;
+                min += max - 25;
+                if(i==0){
+                    getTweets(a[i],t[min-1].id,null,usrname);
+                }
+                else{
+                    getTweets(a[i],t[min-1].id);
+                }
             })
         }
-        if(key&&key.name == 'up'&&c>min){
+        if(key&&key.name == 'w'&&c>min){
             console.log('yo')
             clear();
             c--;
@@ -77,80 +83,118 @@ else{
                 })();
             })
         }
-
-        if(key&&key.name == 'up'&&c<=min){
+        if(key&&key.name == 'w'&&c<=min){
             clear();
             if(min){
                 c--;
                 fs.readFile('tweets.txt',function(err, data){
                     var t = JSON.parse(data);
-                    getTweets(null,t[25].id);
-                    min -= 25;
-                    max -= 25;
+                    if(i==0){
+                        getTweets(ar[i],null,t[25].id,usrname);
+                    }
+                    else{
+                        getTweets(ar[i],null,t[25].id);
+                    }
+                    if(min>=25)min -= 25;
+                    else min = 0;
                 })
             }
             else{
-                getTweets();
+                console.log('Refreshing Page');
+                getTweets(ar[i]);
             }
+        }
+        if(key&&key.name == 'a'){
+            if(i==0){
+                console.log('Refreshing User Page');
+            }
+            if(i==1){
+                i--; 
+                fs.readFile('tweets.txt',function(err, data){
+                    var t = JSON.parse(data);
+                    //console.log(t[c-min])
+                    usrname = user.screen_name;
+                    getTweets(ar[i],null,null,t[c-min].user.screen_name);
+                })
+            }
+            else{
+                i--;
+                getTweets(ar[i]);
+            }
+            c=0;
+            min=0;
+        }
+        if(key&&key.name == 'd'){
+            if(i==2){
+                console.log('Refreshing Mentions Page');
+            }
+            else{
+                i++;
+            }
+            getTweets(ar[i]);
+            c=0;
+            min=0;
+        }
+        if(key&&key.name == 'l'){
+            fs.readFile('tweets.txt',function(err, data){
+                var t = JSON.parse(data);
+                console.log(t[c-min].id_str)
+                if(!t[c-min].favorited){
+                    T.post('favorites/create',{
+                        id:t[c-min].id_str
+                    }).then((er,data,response)=>{
+                        console.log(er||response.data);
+                        getTweets(ar[i]);
+                        c = 0;
+                        min = 0;
+                    })
+                }
+                else{
+                    T.post('favorites/destroy',{
+                        id:t[c-min].id_str
+                    }).then((er,data,response)=>{
+                        console.log(er||response.data);
+                        getTweets(ar[i]);
+                        c = 0;
+                        min = 0;
+                    })
+                }
+            })
+        }
+        if (key &&  key.name == 'q') {
+            process.stdin.pause();
         }
     });
 }
 
-function getTweets(maxid,sinceid){
-    if(!maxid&&!sinceid){
-        T.get('statuses/home_timeline',{
-            count:50,
-            tweet_mode:'extended'
-        })
-        .then((r)=>{
-            fs.writeFileSync('tweets.txt',JSON.stringify(r.data));
-            clear();
-            (async()=>{
-                for(var i=0;i<3;i++){
-                    var x = await display.displayOneTweet(r.data[i]);
-                    Object.keys(x).forEach(function(key) {
-                        console.log(x[key]);
-                    });
-                }
-            })()
-        });
+function getTweets(type,maxid,sinceid,userid){
+    var options = new Object;
+    if(userid){
+        options.screen_name = userid;
     }
     if(maxid){
-        T.get('statuses/home_timeline',{
-            count:50,
-            tweet_mode:'extended',
-            max_id: maxid
-        })
-        .then((r)=>{
-            fs.writeFileSync('tweets.txt',JSON.stringify(r.data));
-            clear();
-            (async()=>{
-                for(var i=0;i<3;i++){
-                    var x = await display.displayOneTweet(r.data[i]);
-                    Object.keys(x).forEach(function(key) {
-                        console.log(x[key]);
-                    });
-                }
-            })()
-        });
+        options.max_id = maxid;
     }
     if(sinceid){
-        T.get('statuses/home_timeline',{
-            count:50,
-            tweet_mode:'extended',
-            since_id: sinceid
-        })
-        .then((r)=>{
-            fs.writeFileSync('tweets.txt',JSON.stringify(r.data));
-            clear();
-            (async()=>{
-                for(var i=0;i<3;i++){
-                    var x = await display.displayOneTweet(r.data[i]);
-                    Object.keys(x).forEach(function(key) {
-                        console.log(x[key]);
-                    });
-                }
-            })()
-        });
+        options.since_id = sinceid;
     }
+    options.count = 50;
+    options.tweet_mode = 'extended';
+    T.get('statuses/'+type+'_timeline', options)
+    .then((r)=>{
+        fs.writeFileSync('tweets.txt', JSON.stringify(r.data));
+        
+        if(sinceid||maxid) max += r.data.length-25;
+        else max = r.data.length;
+        
+        clear();
+        (async()=>{
+            for(var i=0;i<3&&i<r.data.length;i++){
+                var x = await display.displayOneTweet(r.data[i]);
+                Object.keys(x).forEach(function(key) {
+                    console.log(x[key]);
+                });
+            }
+        })()
+    }).catch(console.log(options));
 }

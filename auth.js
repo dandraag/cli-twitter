@@ -19,12 +19,13 @@ module.exports = {
         oauth.getOAuthRequestToken(function(error, oauth_token, oauth_token_secret, results){
             if(error) console.log(error);
             else{
-                console.log('oauth_token :' + oauth_token);
-                console.log('oauth_token_secret :' + oauth_token_secret);
-                console.log('requestoken results :' + JSON.stringify(results));
-                console.log("Requesting access token");
-
-                console.log('https://twitter.com/oauth/authenticate?oauth_token=' + oauth_token + "\n");
+                //console.log('oauth_token :' + oauth_token);
+                //console.log('oauth_token_secret :' + oauth_token_secret);
+                //console.log('requestoken results :' + JSON.stringify(results));
+                //console.log("Requesting access token");
+                console.log('Open the following URL and enter the Pin to authorise:')
+                console.log('https://twitter.com/oauth/authenticate?oauth_token=' + oauth_token);
+                                
                 var stdin = process.openStdin();
                 console.log('PIN: ');
                 stdin.on('data', function(d) {
@@ -41,6 +42,7 @@ module.exports = {
                         
                         oauth.accessToken = oauth_access_token;
                         oauth.accessTokenSecret = oauth_access_token_secret;
+                        console.log('Authorisation complete. Restart app to use.')
                         
                         stdin.destroy();
 

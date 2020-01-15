@@ -42,7 +42,7 @@ module.exports = {
                         oauth.accessToken = oauth_access_token;
                         oauth.accessTokenSecret = oauth_access_token_secret;
                         
-                        stdin.destroySoon();
+                        stdin.destroy();
 
                         conf.set('done',true);
                         conf.set('token.at',oauth_access_token);
